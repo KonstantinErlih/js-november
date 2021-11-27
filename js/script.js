@@ -25,13 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        const newFilm = addInput.value;
+        let newFilm = addInput.value;
         const favorite = checkbox.checked;
+
         if (newFilm) {
+            if (newFilm.length > 21) {
+                newFilm = `${newFilm.substr(0, 21)}...`;
+            }
             movieDB.movies.push(newFilm);
             sortArr(movieDB.movies);
             createMovieList(movieDB.movies, movielist);
         }
+
+        if (favorite) {
+            console.log('Добавляем любимый фильм');
+        }
+
         // addForm.reset(); // Сбрасываем форму, ниже - тоже действие
         event.target.reset();
     });
@@ -54,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createMovieList(films, parent) {
         parent.innerHTML = '';
+
+        sortArr(movieDB.movies);
+
         films.forEach((film, i) => {
             movielist.innerHTML += `
     <li class = "promo__interactive-item"> ${i + 1} ${film}
@@ -61,11 +73,21 @@ document.addEventListener('DOMContentLoaded', () => {
         </li>
     `;
         });
+
+        document.querySelectorAll('.delete').forEach((btn, i) => {
+            btn.addEventListener('click', (e) => {
+                btn.parentElement.remove(); // Удаляем родителя у корзинки (класс .delete)
+                movieDB.movies.splice(i, 1);
+
+                //Рекурсия, функция вызывает сама себя (внутри) - сохраняем нумерацию
+                createMovieList(films, parent);
+            });
+        });
+
     }
 
     deleteAdv(adv);
     makeChanges();
-    sortArr(movieDB.movies);
     createMovieList(movieDB.movies, movielist);
 
 });
